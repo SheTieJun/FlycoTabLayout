@@ -318,7 +318,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
             throw IllegalStateException("ViewPager or ViewPager adapter can not be NULL !")
         }
 
-        if (titles == null || titles.size == 0) {
+        if (titles == null || titles.isEmpty()) {
             throw IllegalStateException("Titles can not be EMPTY !")
         }
 
@@ -341,7 +341,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
             throw IllegalStateException("ViewPager can not be NULL !")
         }
 
-        if (titles == null || titles.size == 0) {
+        if (titles == null || titles.isEmpty()) {
             throw IllegalStateException("Titles can not be EMPTY !")
         }
 
@@ -535,8 +535,8 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
             val nextTabLeft = nextTabView.left.toFloat()
             val nextTabRight = nextTabView.right.toFloat()
 
-            left = left + mCurrentPositionOffset * (nextTabLeft - left)
-            right = right + mCurrentPositionOffset * (nextTabRight - right)
+            left += mCurrentPositionOffset * (nextTabLeft - left)
+            right += mCurrentPositionOffset * (nextTabRight - right)
 
             //for mIndicatorWidthEqualTitle
             if (mIndicatorStyle == STYLE_NORMAL && mIndicatorWidthEqualTitle) {
@@ -544,7 +544,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
                 mTextPaint.textSize = mTextSize
                 val nextTextWidth = mTextPaint.measureText(next_tab_title.text.toString())
                 val nextMargin = (nextTabRight - nextTabLeft - nextTextWidth) / 2
-                margin = margin + mCurrentPositionOffset * (nextMargin - margin)
+                margin += mCurrentPositionOffset * (nextMargin - margin)
             }
         }
 
@@ -566,7 +566,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
 
             if (this.mCurrentTab < tabCount - 1) {
                 val nextTab = mTabsContainer.getChildAt(this.mCurrentTab + 1)
-                indicatorLeft = indicatorLeft + mCurrentPositionOffset * (currentTabView.width / 2 + nextTab.width / 2)
+                indicatorLeft += mCurrentPositionOffset * (currentTabView.width / 2 + nextTab.width / 2)
             }
 
             mIndicatorRect.left = indicatorLeft.toInt()
@@ -765,7 +765,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
             mTextPaint.textSize = mTextSize
             val textWidth = mTextPaint.measureText(tv_tab_title.text.toString())
             val textHeight = mTextPaint.descent() - mTextPaint.ascent()
-            val lp = tipView.layoutParams as ViewGroup.MarginLayoutParams
+            val lp = tipView.layoutParams as MarginLayoutParams
             lp.leftMargin = if (mTabWidth >= 0) (mTabWidth / 2 + textWidth / 2 + dp2px(leftPadding).toFloat()).toInt() else (mTabPadding + textWidth + dp2px(leftPadding).toFloat()).toInt()
             lp.topMargin = if (mHeight > 0) (mHeight - textHeight).toInt() / 2 - dp2px(bottomPadding) else 0
             tipView.layoutParams = lp

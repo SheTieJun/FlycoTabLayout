@@ -1,17 +1,43 @@
 # FlycoTabLayout
-#### [以前的版本](https://github.com/H07000223/FlycoTabLayout/blob/master/OLD_README.md)
+
+fork from  https://github.com/H07000223/FlycoTabLayout
+
+#### [以前的版本](https://github.com/SheTieJun/FlycoTabLayout/blob/master/OLD_README.md)
 
 
 ## Change Log
- >    - 迁移Android X + Kotlin
- >    - tl_textSelectSize 添加选中文字大小
- >    - fix 第一次的是默认选中第一个的时候没有加粗
-
+ >    1.  [Update] 迁移Android X + Kotlin
+ >    2.  [Add]  tl_textSelectSize 添加选中文字大小
+ >    3.  [Fix]  第一次的是默认选中第一个的时候没有加粗
+ 
 ## Gradle
+Step 1.  Add it in your root build.gradle at the end of repositories:
 
 ```groovy
-
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+        }
+}
 ```
+Step 2. Add the dependency
+```
+dependencies {
+    implementation 'com.github.SheTieJun:FlycoTabLayout:e94fe40702'
+}
+```
+Step 3.use it
+```
+<com.flyco.tablayout.SlidingTabLayout
+     android:id="@+id/tl_5"
+     android:layout_width="match_parent"
+     android:layout_height="48dp"
+     tl:tl_textSelectSize = "16sp"
+     android:background="#F6CE59"
+     tl:tl_indicator_width="10dp"/>
+```
+
 
 ## Attributes
 

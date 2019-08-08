@@ -22,5 +22,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation project(path: ':FlycoTabLayout_Lib')
+//    implementation project(path: ':FlycoTabLayout_Lib')
+
+    def version = "e94fe40702"  //commit 前10位
+    implementation "com.github.SheTieJun:FlycoTabLayout:$version"
 }

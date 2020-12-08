@@ -220,6 +220,14 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
             this.mTextSelectColor = textSelectColor
             updateTabStyles()
         }
+    var textSelectSize: Float
+        get() = mTextSelectSize
+        set(textselectSize) {
+            this.mTextSelectSize = textselectSize
+            updateTabStyles()
+        }
+
+
 
     var textUnselectColor: Int
         get() = mTextUnselectColor

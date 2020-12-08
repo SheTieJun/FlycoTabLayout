@@ -1,16 +1,10 @@
 package com.flyco.tablayout
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.Rect
+import android.graphics.*
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.util.TypedValue
@@ -20,15 +14,14 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
-
 import com.flyco.tablayout.listener.OnTabSelectListener
 import com.flyco.tablayout.utils.UnreadMsgUtils
 import com.flyco.tablayout.widget.MsgView
-
-import java.util.ArrayList
-import java.util.Collections
+import java.util.*
 
 /** 滑动TabLayout,对于ViewPager的依赖性强  */
 class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : HorizontalScrollView(mContext, attrs, defStyleAttr){
@@ -440,13 +433,16 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
             }
             when (mTextBold) {
                 TEXT_BOLD_BOTH -> {
-                    tvTabTitle.paint.isFakeBoldText = true
+                    tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.BOLD);
                 }
                 TEXT_BOLD_NONE -> {
-                    tvTabTitle.paint.isFakeBoldText = false
+                    tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.NORMAL);
                 }
                 TEXT_BOLD_WHEN_SELECT -> {
-                    tvTabTitle.paint.isFakeBoldText = i == mCurrentTab
+                    tvTabTitle.typeface = Typeface.defaultFromStyle(when(i == mCurrentTab){
+                        true -> Typeface.BOLD
+                        false -> Typeface.NORMAL
+                    });
                 }
             }
 
@@ -495,7 +491,10 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
 
             tabTitle.setTextColor(if (isSelect) mTextSelectColor else mTextUnselectColor)
             if (mTextBold == TEXT_BOLD_WHEN_SELECT) {
-                tabTitle.paint.isFakeBoldText = isSelect
+                tabTitle.typeface = Typeface.defaultFromStyle(when(isSelect){
+                    true -> Typeface.BOLD
+                    false -> Typeface.NORMAL
+                });
             }
             if (isSelect) {
                 val fl = mTextSelectSize / mTextSize

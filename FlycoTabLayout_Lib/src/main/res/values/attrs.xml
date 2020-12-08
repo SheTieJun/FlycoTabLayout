@@ -68,6 +68,8 @@
     <attr name="tl_textSelectColor" format="color"/>
     <!-- 设置字体未选中颜色 -->
     <attr name="tl_textUnselectColor" format="color"/>
+<!--    字体选择的大小-->
+    <attr format="dimension" name="tl_textSelectSize"/>
     <!-- 设置字体加粗 -->
     <attr name="tl_textBold" format="enum">
         <enum name="NONE" value="0"/>

@@ -6,9 +6,10 @@ fork from  https://github.com/H07000223/FlycoTabLayout
 
 
 ## Change Log
- >    1.  [Update] 迁移Android X + Kotlin
- >    2.  [Add]  tl_textSelectSize 添加选中文字大小
- >    3.  [Fix]  第一次的是默认选中第一个的时候没有加粗
+ >1.  [Update] 迁移Android X + Kotlin
+> 2.  [Add]  tl_textSelectSize 添加选中文字大小
+> 3.  [Fix]  第一次的是默认选中第一个的时候没有加粗
+
  
 ## Gradle
 Step 1.  Add it in your root build.gradle at the end of repositories:

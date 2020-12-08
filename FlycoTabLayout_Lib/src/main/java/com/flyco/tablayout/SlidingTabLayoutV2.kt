@@ -311,21 +311,13 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         ta.recycle()
     }
 
-    /** 关联ViewPager  */
-    fun setViewPager(vp: ViewPager2?) {
-        if (vp == null || vp.adapter == null) {
-            throw IllegalStateException("ViewPager or ViewPager adapter can not be NULL !")
-        }
-
-        this.mViewPager = vp
-
-        this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
-        this.mViewPager!!.registerOnPageChangeCallback(onPageChangeCallback)
+    fun setTitles(titles: ArrayList<String>){
+        mTitles = titles
         notifyDataSetChanged()
     }
 
     /** 关联ViewPager,用于不想在ViewPager适配器中设置titles数据的情况  */
-    fun setViewPager(vp: ViewPager2, titles: Array<String>) {
+    fun setViewPager(vp: ViewPager2, titles: ArrayList<String>) {
         if (vp.adapter == null) {
             throw IllegalStateException("ViewPager or ViewPager adapter can not be NULL !")
         }
@@ -339,16 +331,14 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         }
 
         this.mViewPager = vp
-        mTitles = ArrayList()
-        Collections.addAll(mTitles, *titles)
-
+        mTitles = titles
         this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
         this.mViewPager!!.registerOnPageChangeCallback(onPageChangeCallback)
         notifyDataSetChanged()
     }
 
     /** 关联ViewPager,用于连适配器都不想自己实例化的情况  */
-    fun setViewPager(vp: ViewPager2?, titles: Array<String>?, fa: FragmentActivity, fragments: ArrayList<Fragment>) {
+    fun setViewPager(vp: ViewPager2?, titles: ArrayList<String>?, fa: FragmentActivity, fragments: ArrayList<Fragment>) {
         if (vp == null) {
             throw IllegalStateException("ViewPager can not be NULL !")
         }
@@ -356,7 +346,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         if (titles == null || titles.isEmpty()) {
             throw IllegalStateException("Titles can not be EMPTY !")
         }
-
+        mTitles = titles
         this.mViewPager = vp
         this.mViewPager!!.adapter = InnerPagerAdapter(fa, fragments)
 

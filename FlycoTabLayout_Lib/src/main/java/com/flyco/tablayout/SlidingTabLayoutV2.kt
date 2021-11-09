@@ -458,13 +458,13 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
 
     /** HorizontalScrollView滚到当前tab,并且居中显示  */
     private fun scrollToCurrentTab() {
-        if (tabCount <= 0) {
+        if (tabCount <= 0 ||mCurrentTab >= tabCount ) {
             return
         }
 
-        val offset = (mCurrentPositionOffset * mTabsContainer.getChildAt(mCurrentTab).width).toInt()
+        val offset = (mCurrentPositionOffset * (mTabsContainer.getChildAt(mCurrentTab)?.width?:0)).toInt()
         /**当前Tab的left+当前Tab的Width乘以positionOffset */
-        var newScrollX = mTabsContainer.getChildAt(mCurrentTab).left + offset
+        var newScrollX = (mTabsContainer.getChildAt(mCurrentTab)?.left?:0) + offset
 
         if (mCurrentTab > 0 || offset > 0) {
             /**HorizontalScrollView移动到当前tab,并居中 */

@@ -507,6 +507,9 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
 
     private fun calcIndicatorRect() {
         val currentTabView = mTabsContainer.getChildAt(this.mCurrentTab)
+        
+        if(currentTabView == null) return
+        
         var left = currentTabView.left.toFloat()
         var right = currentTabView.right.toFloat()
 

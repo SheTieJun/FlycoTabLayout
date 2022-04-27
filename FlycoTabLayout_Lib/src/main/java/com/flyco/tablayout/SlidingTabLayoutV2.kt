@@ -356,6 +356,24 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         notifyDataSetChanged()
     }
 
+    /** 关联ViewPager,用于连适配器都不想自己实例化的情况  */
+    fun setViewPager(vp: ViewPager2?, titles: ArrayList<String>?, fa: Fragment, fragments: ArrayList<Fragment>) {
+        if (vp == null) {
+            throw IllegalStateException("ViewPager can not be NULL !")
+        }
+
+        if (titles == null || titles.isEmpty()) {
+            throw IllegalStateException("Titles can not be EMPTY !")
+        }
+        mTitles = titles
+        this.mViewPager = vp
+        this.mViewPager!!.adapter = InnerPagerAdapter(fa, fragments)
+
+        this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
+        this.mViewPager!!.registerOnPageChangeCallback(onPageChangeCallback)
+        notifyDataSetChanged()
+    }
+
     /** 更新数据  */
     fun notifyDataSetChanged() {
         mTabsContainer.removeAllViews()

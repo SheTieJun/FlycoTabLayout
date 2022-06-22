@@ -24,6 +24,7 @@
         <enum name="NORMAL" value="0"/>
         <enum name="TRIANGLE" value="1"/>
         <enum name="BLOCK" value="2"/>
+        <enum name="CUSTOM" value="3"/>
     </attr>
     <!-- 设置显示器长度与title一样长,只有在STYLE_NORMAL并且indicatorWidth小于零有效-->
     <attr name="tl_indicator_width_equal_title" format="boolean"/>
@@ -79,6 +80,9 @@
     <!-- 设置字体全大写 -->
     <attr name="tl_textAllCaps" format="boolean"/>
 
+    <attr name="tl_indicator_unselect_drawable" format="reference|color"/>
+    <attr name="tl_indicator_drawable" format="reference|color"/>
+
     <declare-styleable name="SlidingTabLayout">
         <!-- indicator -->
         <attr name="tl_indicator_color"/>
@@ -92,6 +96,8 @@
         <attr name="tl_indicator_gravity"/>
         <attr name="tl_indicator_style"/>
         <attr name="tl_indicator_width_equal_title"/>
+        <attr name="tl_indicator_drawable"/>
+        <attr name="tl_indicator_unselect_drawable"/>
 
         <!-- underline -->
         <attr name="tl_underline_color"/>

@@ -4,31 +4,36 @@ fork from  https://github.com/H07000223/FlycoTabLayout
 
 #### [以前的版本](https://github.com/SheTieJun/FlycoTabLayout/blob/master/OLD_README.md)
 
-
 ## Change Log
- >1.  [Update] 迁移Android X + Kotlin
-> 2.  [Add]  tl_textSelectSize 添加选中文字大小
-> 3.  [Fix]  第一次的是默认选中第一个的时候没有加粗
 
- 
+> 1. [Update] 迁移Android X + Kotlin
+> 2. [Add]  tl_textSelectSize 添加选中文字大小
+> 3. [Fix]  第一次的是默认选中第一个的时候没有加粗
+> 4. [Add]  SlidingTabLayoutV2 支持 自定义背景tl_indicator_drawable
+
 ## Gradle
-Step 1.  Add it in your root build.gradle at the end of repositories:
+
+Step 1. Add it in your root build.gradle at the end of repositories:
 
 ```groovy
 allprojects {
     repositories {
         ...
         maven { url 'https://jitpack.io' }
-        }
+    }
 }
 ```
+
 Step 2. Add the dependency
+
 ```
 dependencies {
     implementation 'com.github.SheTieJun:FlycoTabLayout:e94fe40702'
 }
 ```
+
 Step 3.use it
+
 ```
 <com.flyco.tablayout.SlidingTabLayout
      android:id="@+id/tl_5"
@@ -38,7 +43,6 @@ Step 3.use it
      android:background="#F6CE59"
      tl:tl_indicator_width="10dp"/>
 ```
-
 
 ## Attributes
 
@@ -77,5 +81,6 @@ Step 3.use it
 | tl_indicator_anim_duration     | integer   | 设置显示器动画时间(only for CommonTabLayout)                 |
 | tl_indicator_bounce_enable     | boolean   | 设置显示器支持动画回弹效果(only for CommonTabLayout)         |
 | tl_indicator_width_equal_title | boolean   | 设置显示器与标题一样长(only for SlidingTabLayout)            |
+| tl_indicator_drawable           |reference|color | 当模式是CUSTOM的时候 设置显示器样式                    |
 
 

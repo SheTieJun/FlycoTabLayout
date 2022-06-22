@@ -2,6 +2,7 @@ package com.flyco.tablayout
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Parcelable
@@ -77,7 +78,8 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         private set
     private var mIndicatorGravity: Int = 0
     private var mIndicatorWidthEqualTitle: Boolean = false
-
+    private var mIndicatorCustomDrawable: Drawable? = null
+    private var mIndicatorNoSelectCustomDrawable: Drawable? = null
     /** underline  */
     private var mUnderlineColor: Int = 0
     private var mUnderlineHeight: Float = 0.toFloat()
@@ -280,13 +282,13 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         mIndicatorStyle = ta.getInt(R.styleable.SlidingTabLayout_tl_indicator_style, STYLE_NORMAL)
         mIndicatorColor = ta.getColor(R.styleable.SlidingTabLayout_tl_indicator_color, Color.parseColor(if (mIndicatorStyle == STYLE_BLOCK) "#4B6A87" else "#ffffff"))
         mIndicatorHeight = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_height,
-                dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 4 else if (mIndicatorStyle == STYLE_BLOCK) -1 else 2).toFloat()).toFloat())
+                dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 4 else if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 2).toFloat()).toFloat())
         mIndicatorWidth = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_width, dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 10 else -1).toFloat()).toFloat())
-        mIndicatorCornerRadius = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_corner_radius, dp2px((if (mIndicatorStyle == STYLE_BLOCK) -1 else 0).toFloat()).toFloat())
+        mIndicatorCornerRadius = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_corner_radius, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 0).toFloat()).toFloat())
         indicatorMarginLeft = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_left, dp2px(0f).toFloat())
-        indicatorMarginTop = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_top, dp2px((if (mIndicatorStyle == STYLE_BLOCK) 7 else 0).toFloat()).toFloat())
+        indicatorMarginTop = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_top, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat())
         indicatorMarginRight = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_right, dp2px(0f).toFloat())
-        indicatorMarginBottom = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_bottom, dp2px((if (mIndicatorStyle == STYLE_BLOCK) 7 else 0).toFloat()).toFloat())
+        indicatorMarginBottom = ta.getDimension(R.styleable.SlidingTabLayout_tl_indicator_margin_bottom, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat())
         mIndicatorGravity = ta.getInt(R.styleable.SlidingTabLayout_tl_indicator_gravity, Gravity.BOTTOM)
         mIndicatorWidthEqualTitle = ta.getBoolean(R.styleable.SlidingTabLayout_tl_indicator_width_equal_title, false)
 
@@ -308,7 +310,8 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         mTabSpaceEqual = ta.getBoolean(R.styleable.SlidingTabLayout_tl_tab_space_equal, false)
         mTabWidth = ta.getDimension(R.styleable.SlidingTabLayout_tl_tab_width, dp2px(-1f).toFloat())
         mTabPadding = ta.getDimension(R.styleable.SlidingTabLayout_tl_tab_padding, (if (mTabSpaceEqual || mTabWidth > 0) dp2px(0f) else dp2px(20f)).toFloat())
-
+        mIndicatorCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayout_tl_indicator_drawable)
+        mIndicatorNoSelectCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayout_tl_indicator_unselect_drawable)
         ta.recycle()
     }
 
@@ -644,7 +647,25 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
                 mIndicatorDrawable.cornerRadius = mIndicatorCornerRadius
                 mIndicatorDrawable.draw(canvas)
             }
-        } else {
+        }else if(mIndicatorStyle == STYLE_CUSTOME_DRAWABLE){
+
+            if (mIndicatorHeight < 0) {
+                mIndicatorHeight = height.toFloat() - indicatorMarginTop - indicatorMarginBottom
+            } else {
+
+            }
+
+            if (mIndicatorHeight > 0) {
+                if (mIndicatorCornerRadius < 0 || mIndicatorCornerRadius > mIndicatorHeight / 2) {
+                    mIndicatorCornerRadius = mIndicatorHeight / 2
+                }
+                mIndicatorCustomDrawable?.setBounds(paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
+                    indicatorMarginTop.toInt(), (paddingLeft + mIndicatorRect.right - indicatorMarginRight).toInt(),
+                    (indicatorMarginTop + mIndicatorHeight).toInt())
+                mIndicatorCustomDrawable?.draw(canvas)
+            }
+
+        }else {
             /* mRectPaint.setColor(mIndicatorColor);
                 calcIndicatorRect();
                 canvas.drawRect(getPaddingLeft() + mIndicatorRect.left, getHeight() - mIndicatorHeight,
@@ -850,6 +871,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         private val STYLE_NORMAL = 0
         private val STYLE_TRIANGLE = 1
         private val STYLE_BLOCK = 2
+        private val STYLE_CUSTOME_DRAWABLE = 3
 
         /** title  */
         private val TEXT_BOLD_NONE = 0

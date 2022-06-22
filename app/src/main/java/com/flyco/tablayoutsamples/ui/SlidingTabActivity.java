@@ -3,15 +3,21 @@ package com.flyco.tablayoutsamples.ui;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.lifecycle.Lifecycle;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 import com.flyco.tablayout.SlidingTabLayout;
+import com.flyco.tablayout.SlidingTabLayoutV2;
 import com.flyco.tablayout.listener.OnTabSelectListener;
 import com.flyco.tablayout.widget.MsgView;
 import com.flyco.tablayoutsamples.R;
@@ -22,10 +28,14 @@ import java.util.ArrayList;
 public class SlidingTabActivity extends AppCompatActivity implements OnTabSelectListener {
     private Context mContext = this;
     private ArrayList<Fragment> mFragments = new ArrayList<>();
+    private ArrayList<Fragment> mFragments2 = new ArrayList<>();
     private final String[] mTitles = {
             "热门", "iOS", "Android"
             , "前端", "后端", "设计", "工具资源"
     };
+
+    private final ArrayList<String> list = new ArrayList<>();
+
     private MyPagerAdapter mAdapter;
 
     @Override
@@ -40,8 +50,11 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
 
         View decorView = getWindow().getDecorView();
         ViewPager vp = ViewFindUtils.find(decorView, R.id.vp);
+        ViewPager2 vp2 = ViewFindUtils.find(decorView, R.id.vp_2);
         mAdapter = new MyPagerAdapter(getSupportFragmentManager());
+        MyPagerAdapter2 mAdapter2 = new MyPagerAdapter2(this);
         vp.setAdapter(mAdapter);
+        vp2.setAdapter(mAdapter2);
 
         /** 默认 */
         SlidingTabLayout tabLayout_1 = ViewFindUtils.find(decorView, R.id.tl_1);
@@ -63,7 +76,8 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         SlidingTabLayout tabLayout_9 = ViewFindUtils.find(decorView, R.id.tl_9);
         /** indicator圆角色块 */
         SlidingTabLayout tabLayout_10 = ViewFindUtils.find(decorView, R.id.tl_10);
-
+        /** indicator/dawable */
+        SlidingTabLayoutV2 tabLayout_11 = ViewFindUtils.find(decorView, R.id.tl_11);
         tabLayout_1.setViewPager(vp);
         tabLayout_2.setViewPager(vp);
         tabLayout_2.setOnTabSelectListener(this);
@@ -75,6 +89,24 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         tabLayout_8.setViewPager(vp, mTitles, this, mFragments);
         tabLayout_9.setViewPager(vp);
         tabLayout_10.setViewPager(vp);
+
+
+        //  "热门", "iOS", "Android"
+        //            , "前端", "后端", "设计", "工具资源"
+        list.add("热门");
+        list.add("iOS");
+        list.add("Android");
+        list.add("前端");
+        list.add("后端");
+        list.add("设计");
+        list.add("工具资源");
+
+
+        for (String title : list) {
+            mFragments2.add(SimpleCardFragment.getInstance(title));
+        }
+
+        tabLayout_11.setViewPager(vp2, list);
 
         vp.setCurrentItem(4);
 
@@ -135,6 +167,33 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         @Override
         public Fragment getItem(int position) {
             return mFragments.get(position);
+        }
+    }
+
+    private class MyPagerAdapter2 extends FragmentStateAdapter {
+
+        public MyPagerAdapter2(@NonNull FragmentActivity fragmentActivity) {
+            super(fragmentActivity);
+        }
+
+        public MyPagerAdapter2(@NonNull Fragment fragment) {
+            super(fragment);
+        }
+
+        public MyPagerAdapter2(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+            super(fragmentManager, lifecycle);
+        }
+
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return  mFragments2.get(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mFragments2.size();
         }
     }
 }

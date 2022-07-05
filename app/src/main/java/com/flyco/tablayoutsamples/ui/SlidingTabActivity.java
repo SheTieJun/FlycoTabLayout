@@ -28,7 +28,6 @@ import java.util.ArrayList;
 public class SlidingTabActivity extends AppCompatActivity implements OnTabSelectListener {
     private Context mContext = this;
     private ArrayList<Fragment> mFragments = new ArrayList<>();
-    private ArrayList<Fragment> mFragments2 = new ArrayList<>();
     private final String[] mTitles = {
             "热门", "iOS", "Android"
             , "前端", "后端", "设计", "工具资源"
@@ -47,14 +46,10 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
             mFragments.add(SimpleCardFragment.getInstance(title));
         }
 
-
         View decorView = getWindow().getDecorView();
         ViewPager vp = ViewFindUtils.find(decorView, R.id.vp);
-        ViewPager2 vp2 = ViewFindUtils.find(decorView, R.id.vp_2);
         mAdapter = new MyPagerAdapter(getSupportFragmentManager());
-        MyPagerAdapter2 mAdapter2 = new MyPagerAdapter2(this);
         vp.setAdapter(mAdapter);
-        vp2.setAdapter(mAdapter2);
 
         /** 默认 */
         SlidingTabLayout tabLayout_1 = ViewFindUtils.find(decorView, R.id.tl_1);
@@ -76,8 +71,6 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         SlidingTabLayout tabLayout_9 = ViewFindUtils.find(decorView, R.id.tl_9);
         /** indicator圆角色块 */
         SlidingTabLayout tabLayout_10 = ViewFindUtils.find(decorView, R.id.tl_10);
-        /** indicator/dawable */
-        SlidingTabLayoutV2 tabLayout_11 = ViewFindUtils.find(decorView, R.id.tl_11);
         tabLayout_1.setViewPager(vp);
         tabLayout_2.setViewPager(vp);
         tabLayout_2.setOnTabSelectListener(this);
@@ -90,23 +83,6 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         tabLayout_9.setViewPager(vp);
         tabLayout_10.setViewPager(vp);
 
-
-        //  "热门", "iOS", "Android"
-        //            , "前端", "后端", "设计", "工具资源"
-        list.add("热门");
-        list.add("iOS");
-        list.add("Android");
-        list.add("前端");
-        list.add("后端");
-        list.add("设计");
-        list.add("工具资源");
-
-
-        for (String title : list) {
-            mFragments2.add(SimpleCardFragment.getInstance(title));
-        }
-
-        tabLayout_11.setViewPager(vp2, list);
 
         vp.setCurrentItem(4);
 
@@ -124,19 +100,6 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         tabLayout_2.showMsg(5, 5);
         tabLayout_2.setMsgMargin(5, 0, 10);
 
-//        tabLayout_7.setOnTabSelectListener(new OnTabSelectListener() {
-//            @Override
-//            public void onTabSelect(int position) {
-//                Toast.makeText(mContext, "onTabSelect&position--->" + position, Toast.LENGTH_SHORT).show();
-//            }
-//
-//            @Override
-//            public void onTabReselect(int position) {
-//                mFragments.add(SimpleCardFragment.getInstance("后端"));
-//                mAdapter.notifyDataSetChanged();
-//                tabLayout_7.addNewTab("后端");
-//            }
-//        });
     }
 
     @Override
@@ -170,30 +133,4 @@ public class SlidingTabActivity extends AppCompatActivity implements OnTabSelect
         }
     }
 
-    private class MyPagerAdapter2 extends FragmentStateAdapter {
-
-        public MyPagerAdapter2(@NonNull FragmentActivity fragmentActivity) {
-            super(fragmentActivity);
-        }
-
-        public MyPagerAdapter2(@NonNull Fragment fragment) {
-            super(fragment);
-        }
-
-        public MyPagerAdapter2(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
-        }
-
-
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            return  mFragments2.get(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mFragments2.size();
-        }
-    }
 }

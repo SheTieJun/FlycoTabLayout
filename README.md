@@ -81,6 +81,7 @@ Step 3.use it
 | tl_indicator_anim_duration     | integer   | 设置显示器动画时间(only for CommonTabLayout)                 |
 | tl_indicator_bounce_enable     | boolean   | 设置显示器支持动画回弹效果(only for CommonTabLayout)         |
 | tl_indicator_width_equal_title | boolean   | 设置显示器与标题一样长(only for SlidingTabLayout)            |
-| tl_indicator_drawable           |reference|color | 当模式是CUSTOM的时候 设置显示器样式                    |
+| tl_indicator_drawable           |reference|设置背景Drawable,当模式是CUSTOM的时候 设置显示器样式                    |
 
 
+![](tablayoutsamples.webp)

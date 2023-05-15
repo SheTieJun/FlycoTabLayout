@@ -134,6 +134,13 @@ class SegmentTabLayout @JvmOverloads constructor(private val mContext: Context, 
             invalidate()
         }
 
+    var barStrokeColor: Int
+        get() = mBarStrokeColor
+        set(indicatorColor) {
+            this.mBarStrokeColor = indicatorColor
+            invalidate()
+        }
+
     var indicatorHeight: Float
         get() = mIndicatorHeight
         set(indicatorHeight) {

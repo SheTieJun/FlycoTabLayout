@@ -7,34 +7,43 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.util.Log
 import android.util.SparseArray
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.flyco.tablayout.bean.TabTitleType
+import com.flyco.tablayout.bean.TabV3Title
 import com.flyco.tablayout.listener.OnTabSelectListener
 import com.flyco.tablayout.utils.UnreadMsgUtils
+import com.flyco.tablayout.v3.IImageLoader
 import com.flyco.tablayout.widget.MsgView
 import java.util.*
 
 /** 滑动TabLayout,对于ViewPager的依赖性强  */
-class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : HorizontalScrollView(mContext, attrs, defStyleAttr){
+class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
+    HorizontalScrollView(mContext, attrs, defStyleAttr) {
     private var mViewPager: ViewPager2? = null
-    private var mTitles: ArrayList<String>? = null
+    private var mTitles: ArrayList<TabV3Title>? = null
     private val mTabsContainer: LinearLayout
     private var mCurrentTab: Int = 0
     private var mCurrentPositionOffset: Float = 0.toFloat()
+    private var mSelectImageScale: Float = 1.0.toFloat()
     var tabCount: Int = 0
         private set
+
     /** 用于绘制显示器  */
     private val mIndicatorRect = Rect()
+
     /** 用于实现滚动居中  */
     private val mTabRect = Rect()
     private val mIndicatorDrawable = GradientDrawable()
@@ -49,7 +58,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     private var mTabSpaceEqual: Boolean = false
     private var mTabWidth: Float = 0.toFloat()
 
-    private var onPageChangeCallback = object :ViewPager2.OnPageChangeCallback(){
+    private var onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             mCurrentTab = position
             mCurrentPositionOffset = positionOffset
@@ -63,6 +72,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
 
         override fun onPageScrollStateChanged(state: Int) {}
     }
+
     /** indicator  */
     private var mIndicatorColor: Int = 0
     private var mIndicatorHeight: Float = 0.toFloat()
@@ -80,6 +90,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     private var mIndicatorWidthEqualTitle: Boolean = false
     private var mIndicatorCustomDrawable: Drawable? = null
     private var mIndicatorNoSelectCustomDrawable: Drawable? = null
+
     /** underline  */
     private var mUnderlineColor: Int = 0
     private var mUnderlineHeight: Float = 0.toFloat()
@@ -90,7 +101,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     private var mDividerWidth: Float = 0.toFloat()
     private var mDividerPadding: Float = 0.toFloat()
     private var mTextSize: Float = 0.toFloat()
-    private var mTextSelectSize :Float = 0.toFloat()
+    private var mTextSelectSize: Float = 0.toFloat()
     private var mTextSelectColor: Int = 0
     private var mTextUnselectColor: Int = 0
     private var mTextBold: Int = 0
@@ -223,7 +234,6 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         }
 
 
-
     var textUnselectColor: Int
         get() = mTextUnselectColor
         set(textUnselectColor) {
@@ -277,52 +287,68 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     }
 
     private fun obtainAttributes(context: Context, attrs: AttributeSet?) {
-        val ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingTabLayoutV2)
+        val ta = context.obtainStyledAttributes(attrs, R.styleable.SlidingTabLayoutV3)
 
-        mIndicatorStyle = ta.getInt(R.styleable.SlidingTabLayoutV2_tl_indicator_style, STYLE_NORMAL)
-        mIndicatorColor = ta.getColor(R.styleable.SlidingTabLayoutV2_tl_indicator_color, Color.parseColor(if (mIndicatorStyle == STYLE_BLOCK) "#4B6A87" else "#ffffff"))
-        mIndicatorHeight = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_height,
-                dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 4 else if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 2).toFloat()).toFloat())
-        mIndicatorWidth = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_width, dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 10 else -1).toFloat()).toFloat())
-        mIndicatorCornerRadius = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_corner_radius, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 0).toFloat()).toFloat())
-        indicatorMarginLeft = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_margin_left, dp2px(0f).toFloat())
-        indicatorMarginTop = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_margin_top, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat())
-        indicatorMarginRight = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_margin_right, dp2px(0f).toFloat())
-        indicatorMarginBottom = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_indicator_margin_bottom, dp2px((if (mIndicatorStyle == STYLE_BLOCK||mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat())
-        mIndicatorGravity = ta.getInt(R.styleable.SlidingTabLayoutV2_tl_indicator_gravity, Gravity.BOTTOM)
-        mIndicatorWidthEqualTitle = ta.getBoolean(R.styleable.SlidingTabLayoutV2_tl_indicator_width_equal_title, false)
+        mIndicatorStyle = ta.getInt(R.styleable.SlidingTabLayoutV3_tl_indicator_style, STYLE_NORMAL)
+        mIndicatorColor =
+            ta.getColor(R.styleable.SlidingTabLayoutV3_tl_indicator_color, Color.parseColor(if (mIndicatorStyle == STYLE_BLOCK) "#4B6A87" else "#ffffff"))
+        mIndicatorHeight = ta.getDimension(
+            R.styleable.SlidingTabLayoutV3_tl_indicator_height,
+            dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 4 else if (mIndicatorStyle == STYLE_BLOCK || mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 2).toFloat()).toFloat()
+        )
+        mIndicatorWidth =
+            ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_indicator_width, dp2px((if (mIndicatorStyle == STYLE_TRIANGLE) 10 else -1).toFloat()).toFloat())
+        mIndicatorCornerRadius = ta.getDimension(
+            R.styleable.SlidingTabLayoutV3_tl_indicator_corner_radius,
+            dp2px((if (mIndicatorStyle == STYLE_BLOCK || mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) -1 else 0).toFloat()).toFloat()
+        )
+        indicatorMarginLeft = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_indicator_margin_left, dp2px(0f).toFloat())
+        indicatorMarginTop = ta.getDimension(
+            R.styleable.SlidingTabLayoutV3_tl_indicator_margin_top,
+            dp2px((if (mIndicatorStyle == STYLE_BLOCK || mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat()
+        )
+        indicatorMarginRight = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_indicator_margin_right, dp2px(0f).toFloat())
+        indicatorMarginBottom = ta.getDimension(
+            R.styleable.SlidingTabLayoutV3_tl_indicator_margin_bottom,
+            dp2px((if (mIndicatorStyle == STYLE_BLOCK || mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) 7 else 0).toFloat()).toFloat()
+        )
+        mIndicatorGravity = ta.getInt(R.styleable.SlidingTabLayoutV3_tl_indicator_gravity, Gravity.BOTTOM)
+        mIndicatorWidthEqualTitle = ta.getBoolean(R.styleable.SlidingTabLayoutV3_tl_indicator_width_equal_title, false)
 
-        mUnderlineColor = ta.getColor(R.styleable.SlidingTabLayoutV2_tl_underline_color, Color.parseColor("#ffffff"))
-        mUnderlineHeight = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_underline_height, dp2px(0f).toFloat())
-        mUnderlineGravity = ta.getInt(R.styleable.SlidingTabLayoutV2_tl_underline_gravity, Gravity.BOTTOM)
+        mUnderlineColor = ta.getColor(R.styleable.SlidingTabLayoutV3_tl_underline_color, Color.parseColor("#ffffff"))
+        mUnderlineHeight = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_underline_height, dp2px(0f).toFloat())
+        mUnderlineGravity = ta.getInt(R.styleable.SlidingTabLayoutV3_tl_underline_gravity, Gravity.BOTTOM)
 
-        mDividerColor = ta.getColor(R.styleable.SlidingTabLayoutV2_tl_divider_color, Color.parseColor("#ffffff"))
-        mDividerWidth = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_divider_width, dp2px(0f).toFloat())
-        mDividerPadding = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_divider_padding, dp2px(12f).toFloat())
+        mDividerColor = ta.getColor(R.styleable.SlidingTabLayoutV3_tl_divider_color, Color.parseColor("#ffffff"))
+        mDividerWidth = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_divider_width, dp2px(0f).toFloat())
+        mDividerPadding = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_divider_padding, dp2px(12f).toFloat())
 
-        mTextSize = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_textsize, sp2px(14f).toFloat())
-        mTextSelectSize = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_textSelectSize, sp2px(14f).toFloat())
-        mTextSelectColor = ta.getColor(R.styleable.SlidingTabLayoutV2_tl_textSelectColor, Color.parseColor("#ffffff"))
-        mTextUnselectColor = ta.getColor(R.styleable.SlidingTabLayoutV2_tl_textUnselectColor, Color.parseColor("#AAffffff"))
-        mTextBold = ta.getInt(R.styleable.SlidingTabLayoutV2_tl_textBold, TEXT_BOLD_NONE)
-        mTextAllCaps = ta.getBoolean(R.styleable.SlidingTabLayoutV2_tl_textAllCaps, false)
+        mTextSize = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_textsize, sp2px(14f).toFloat())
+        mTextSelectSize = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_textSelectSize, sp2px(14f).toFloat())
+        mTextSelectColor = ta.getColor(R.styleable.SlidingTabLayoutV3_tl_textSelectColor, Color.parseColor("#ffffff"))
+        mTextUnselectColor = ta.getColor(R.styleable.SlidingTabLayoutV3_tl_textUnselectColor, Color.parseColor("#AAffffff"))
+        mTextBold = ta.getInt(R.styleable.SlidingTabLayoutV3_tl_textBold, TEXT_BOLD_NONE)
+        mTextAllCaps = ta.getBoolean(R.styleable.SlidingTabLayoutV3_tl_textAllCaps, false)
 
-        mTabSpaceEqual = ta.getBoolean(R.styleable.SlidingTabLayoutV2_tl_tab_space_equal, false)
-        mTabWidth = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_tab_width, dp2px(-1f).toFloat())
-        mTabPadding = ta.getDimension(R.styleable.SlidingTabLayoutV2_tl_tab_padding, (if (mTabSpaceEqual || mTabWidth > 0) dp2px(0f) else dp2px(20f)).toFloat())
-        mIndicatorCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayoutV2_tl_indicator_drawable)
-        mIndicatorNoSelectCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayoutV2_tl_indicator_unselect_drawable)
+        mTabSpaceEqual = ta.getBoolean(R.styleable.SlidingTabLayoutV3_tl_tab_space_equal, false)
+        mTabWidth = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_tab_width, dp2px(-1f).toFloat())
+        mTabPadding = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_tab_padding, (if (mTabSpaceEqual || mTabWidth > 0) dp2px(0f) else dp2px(20f)).toFloat())
+        mIndicatorCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayoutV3_tl_indicator_drawable)
+        mIndicatorNoSelectCustomDrawable = ta.getDrawable(R.styleable.SlidingTabLayoutV3_tl_indicator_unselect_drawable)
+
+
+        mSelectImageScale = ta.getFloat(R.styleable.SlidingTabLayoutV3_tl_imgSelect_scale, 1.0f)
 
         ta.recycle()
     }
 
-    fun setTitles(titles: ArrayList<String>){
+    fun setTitles(titles: ArrayList<TabV3Title>) {
         mTitles = titles
         notifyDataSetChanged()
     }
 
     /** 关联ViewPager,用于不想在ViewPager适配器中设置titles数据的情况  */
-    fun setViewPager(vp: ViewPager2, titles: ArrayList<String>) {
+    fun setViewPager(vp: ViewPager2, titles: ArrayList<TabV3Title>) {
         if (vp.adapter == null) {
             throw IllegalStateException("ViewPager or ViewPager adapter can not be NULL !")
         }
@@ -343,7 +369,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     }
 
     /** 关联ViewPager,用于连适配器都不想自己实例化的情况  */
-    fun setViewPager(vp: ViewPager2?, titles: ArrayList<String>?, fa: FragmentActivity, fragments: ArrayList<Fragment>) {
+    fun setViewPager(vp: ViewPager2?, titles: ArrayList<TabV3Title>?, fa: FragmentActivity, fragments: ArrayList<Fragment>) {
         if (vp == null) {
             throw IllegalStateException("ViewPager can not be NULL !")
         }
@@ -361,7 +387,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     }
 
     /** 关联ViewPager,用于连适配器都不想自己实例化的情况  */
-    fun setViewPager(vp: ViewPager2?, titles: ArrayList<String>?, fa: Fragment, fragments: ArrayList<Fragment>) {
+    fun setViewPager(vp: ViewPager2?, titles: ArrayList<TabV3Title>?, fa: Fragment, fragments: ArrayList<Fragment>) {
         if (vp == null) {
             throw IllegalStateException("ViewPager can not be NULL !")
         }
@@ -384,32 +410,37 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         this.tabCount = if (mTitles == null) mViewPager!!.adapter!!.itemCount else mTitles!!.size
         var tabView: View
         for (i in 0 until tabCount) {
-            tabView = View.inflate(mContext, R.layout.layout_tab, null)
+            tabView = View.inflate(mContext, R.layout.layout_tab_image, null)
             val pageTitle = mTitles!![i]
-            addTab(i, pageTitle.toString(), tabView)
+            addTab(i, pageTitle, tabView)
         }
         updateTabStyles()
     }
 
-    fun addNewTab(title: String) {
-        val tabView = View.inflate(mContext, R.layout.layout_tab, null)
+    fun addNewTab(title: TabV3Title) {
+        val tabView = View.inflate(mContext, R.layout.layout_tab_image, null)
         if (mTitles != null) {
             mTitles!!.add(title)
         }
-        val pageTitle =  mTitles!![tabCount]
-        addTab(tabCount, pageTitle.toString(), tabView)
+        val pageTitle = mTitles!![tabCount]
+        addTab(tabCount, pageTitle, tabView)
         this.tabCount = if (mTitles == null) mViewPager!!.adapter!!.itemCount else mTitles!!.size
 
         updateTabStyles()
     }
 
     /** 创建并添加tab  */
-    private fun addTab(position: Int, title: String?, tabView: View) {
-        val tv_tab_title = tabView.findViewById<View>(R.id.tv_tab_title) as TextView
-        if (tv_tab_title != null) {
-            if (title != null) tv_tab_title.text = title
+    private fun addTab(position: Int, title: TabV3Title?, tabView: View) {
+        tabView.setTag(R.id.tab_v3_tag, title?.type)
+        val tv_tab_title = tabView.findViewById<TextView>(R.id.tv_tab_title)
+        val image_tab_title = tabView.findViewById<ImageView>(R.id.iv_tab_title)
+        image_tab_title.visibility = if (title?.type == TabTitleType.IMAGE) View.VISIBLE else View.GONE
+        tv_tab_title.visibility = if (title?.type == TabTitleType.TEXT) View.VISIBLE else View.GONE
+        if (title?.type == TabTitleType.TEXT) {
+            tv_tab_title.text = title.content as String
+        } else {
+            title?.let { SlidingTabConfig.imageLoader?.loadImage(image_tab_title, it.content) }
         }
-
         tabView.setOnClickListener { v ->
             val position = mTabsContainer.indexOfChild(v)
             if (position != -1) {
@@ -417,7 +448,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
                     if (mSnapOnTabClick) {
                         mViewPager!!.setCurrentItem(position, false)
                     } else {
-                        mViewPager!!.setCurrentItem(position)
+                        mViewPager!!.currentItem = position
                     }
 
                     if (mListener != null) {
@@ -446,33 +477,43 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     private fun updateTabStyles() {
         for (i in 0 until tabCount) {
             val v = mTabsContainer.getChildAt(i)
+            val type = v.getTag(R.id.tab_v3_tag) as String
             val tvTabTitle = v.findViewById<TextView>(R.id.tv_tab_title)
-            tvTabTitle.setTextColor(if (i == mCurrentTab) mTextSelectColor else mTextUnselectColor)
-            tvTabTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize)
-            tvTabTitle.setPadding(mTabPadding.toInt(), 0, mTabPadding.toInt(), 0)
-            if (mTextAllCaps) {
-                tvTabTitle.text = tvTabTitle.text.toString().uppercase()
-            }
-            when (mTextBold) {
-                TEXT_BOLD_BOTH -> {
-                    tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.BOLD);
+            val imageTabTitle = v.findViewById<ImageView>(R.id.iv_tab_title)
+            imageTabTitle.visibility = if (type == TabTitleType.IMAGE) View.VISIBLE else View.GONE
+            tvTabTitle.visibility = if (type == TabTitleType.TEXT) View.VISIBLE else View.GONE
+            val currentView = if (type == TabTitleType.TEXT) tvTabTitle else imageTabTitle
+            if (type == TabTitleType.TEXT) {
+                tvTabTitle.setTextColor(if (i == mCurrentTab) mTextSelectColor else mTextUnselectColor)
+                tvTabTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize)
+                tvTabTitle.setPadding(mTabPadding.toInt(), 0, mTabPadding.toInt(), 0)
+                if (mTextAllCaps) {
+                    tvTabTitle.text = tvTabTitle.text.toString().uppercase()
                 }
-                TEXT_BOLD_NONE -> {
-                    tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.NORMAL);
-                }
-                TEXT_BOLD_WHEN_SELECT -> {
-                    tvTabTitle.typeface = Typeface.defaultFromStyle(when(i == mCurrentTab){
-                        true -> Typeface.BOLD
-                        false -> Typeface.NORMAL
-                    });
-                }
-            }
+                when (mTextBold) {
+                    TEXT_BOLD_BOTH -> {
+                        tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
+                    }
 
+                    TEXT_BOLD_NONE -> {
+                        tvTabTitle.typeface = Typeface.defaultFromStyle(Typeface.NORMAL)
+                    }
+
+                    TEXT_BOLD_WHEN_SELECT -> {
+                        tvTabTitle.typeface = Typeface.defaultFromStyle(
+                            when (i == mCurrentTab) {
+                                true -> Typeface.BOLD
+                                false -> Typeface.NORMAL
+                            }
+                        )
+                    }
+                }
+            }
             if (i == mCurrentTab) {
-                val fl = mTextSelectSize / mTextSize
-                tvTabTitle.animate().scaleX(fl).scaleY(fl).setDuration(180).start()
-            }else{
-                tvTabTitle.animate().scaleX(1f).scaleY(1f).setDuration(180).start()
+                val fl = if (type == TabTitleType.TEXT) mTextSelectSize / mTextSize else mSelectImageScale
+                currentView.animate().scaleX(fl).scaleY(fl).setDuration(180).start()
+            } else {
+                currentView.animate().scaleX(1f).scaleY(1f).setDuration(180).start()
             }
 
         }
@@ -480,13 +521,14 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
 
     /** HorizontalScrollView滚到当前tab,并且居中显示  */
     private fun scrollToCurrentTab() {
-        if (tabCount <= 0 ||mCurrentTab >= tabCount ) {
+        if (tabCount <= 0 || mCurrentTab >= tabCount) {
             return
         }
 
-        val offset = (mCurrentPositionOffset * (mTabsContainer.getChildAt(mCurrentTab)?.width?:0)).toInt()
+        val offset = (mCurrentPositionOffset * (mTabsContainer.getChildAt(mCurrentTab)?.width ?: 0)).toInt()
+
         /**当前Tab的left+当前Tab的Width乘以positionOffset */
-        var newScrollX = (mTabsContainer.getChildAt(mCurrentTab)?.left?:0) + offset
+        var newScrollX = (mTabsContainer.getChildAt(mCurrentTab)?.left ?: 0) + offset
 
         if (mCurrentTab > 0 || offset > 0) {
             /**HorizontalScrollView移动到当前tab,并居中 */
@@ -509,28 +551,35 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         for (i in 0 until tabCount) {
             val tabView = mTabsContainer.getChildAt(i)
             val isSelect = i == position
-            val tabTitle = tabView.findViewById<View>(R.id.tv_tab_title) as TextView
+            val type = tabView.getTag(R.id.tab_v3_tag) as String
+            val tabTitle = tabView.findViewById<TextView>(R.id.tv_tab_title)
+            val imageTabTitle = tabView.findViewById<ImageView>(R.id.iv_tab_title)
+            imageTabTitle.visibility = if (type == TabTitleType.IMAGE) View.VISIBLE else View.GONE
+            tabTitle.visibility = if (type == TabTitleType.TEXT) View.VISIBLE else View.GONE
+            val currentView = if (type == TabTitleType.TEXT) tabTitle else imageTabTitle
             tabTitle.setTextColor(if (isSelect) mTextSelectColor else mTextUnselectColor)
             if (mTextBold == TEXT_BOLD_WHEN_SELECT) {
-                tabTitle.typeface = Typeface.defaultFromStyle(when(isSelect){
-                    true -> Typeface.BOLD
-                    false -> Typeface.NORMAL
-                });
+                tabTitle.typeface = Typeface.defaultFromStyle(
+                    when (isSelect) {
+                        true -> Typeface.BOLD
+                        false -> Typeface.NORMAL
+                    }
+                )
             }
             if (isSelect) {
-                val fl = mTextSelectSize / mTextSize
-                tabTitle.animate().scaleX(fl).scaleY(fl).setDuration(180).start()
-            }else{
-                tabTitle.animate().scaleX(1f).scaleY(1f).setDuration(180).start()
+                val fl = if (type == TabTitleType.TEXT) mTextSelectSize / mTextSize else mSelectImageScale
+                currentView.animate().scaleX(fl).scaleY(fl).setDuration(180).start()
+            } else {
+                currentView.animate().scaleX(1f).scaleY(1f).setDuration(180).start()
             }
         }
     }
 
     private fun calcIndicatorRect() {
         val currentTabView = mTabsContainer.getChildAt(this.mCurrentTab)
-        
-        if(currentTabView == null) return
-        
+
+        if (currentTabView == null) return
+
         var left = currentTabView.left.toFloat()
         var right = currentTabView.right.toFloat()
 
@@ -601,7 +650,13 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
             mDividerPaint.color = mDividerColor
             for (i in 0 until tabCount - 1) {
                 val tab = mTabsContainer.getChildAt(i)
-                canvas.drawLine((paddingLeft + tab.right).toFloat(), mDividerPadding, (paddingLeft + tab.right).toFloat(), height - mDividerPadding, mDividerPaint)
+                canvas.drawLine(
+                    (paddingLeft + tab.right).toFloat(),
+                    mDividerPadding,
+                    (paddingLeft + tab.right).toFloat(),
+                    height - mDividerPadding,
+                    mDividerPaint
+                )
             }
         }
 
@@ -641,13 +696,15 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
                 }
 
                 mIndicatorDrawable.setColor(mIndicatorColor)
-                mIndicatorDrawable.setBounds(paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
-                        indicatorMarginTop.toInt(), (paddingLeft + mIndicatorRect.right - indicatorMarginRight).toInt(),
-                        (indicatorMarginTop + mIndicatorHeight).toInt())
+                mIndicatorDrawable.setBounds(
+                    paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
+                    indicatorMarginTop.toInt(), (paddingLeft + mIndicatorRect.right - indicatorMarginRight).toInt(),
+                    (indicatorMarginTop + mIndicatorHeight).toInt()
+                )
                 mIndicatorDrawable.cornerRadius = mIndicatorCornerRadius
                 mIndicatorDrawable.draw(canvas)
             }
-        }else if(mIndicatorStyle == STYLE_CUSTOME_DRAWABLE){
+        } else if (mIndicatorStyle == STYLE_CUSTOME_DRAWABLE) {
 
             if (mIndicatorHeight < 0) {
                 mIndicatorHeight = height.toFloat() - indicatorMarginTop - indicatorMarginBottom
@@ -659,13 +716,15 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
                 if (mIndicatorCornerRadius < 0 || mIndicatorCornerRadius > mIndicatorHeight / 2) {
                     mIndicatorCornerRadius = mIndicatorHeight / 2
                 }
-                mIndicatorCustomDrawable?.setBounds(paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
+                mIndicatorCustomDrawable?.setBounds(
+                    paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
                     indicatorMarginTop.toInt(), (paddingLeft + mIndicatorRect.right - indicatorMarginRight).toInt(),
-                    (indicatorMarginTop + mIndicatorHeight).toInt())
+                    (indicatorMarginTop + mIndicatorHeight).toInt()
+                )
                 mIndicatorCustomDrawable?.draw(canvas)
             }
 
-        }else {
+        } else {
             /* mRectPaint.setColor(mIndicatorColor);
                 calcIndicatorRect();
                 canvas.drawRect(getPaddingLeft() + mIndicatorRect.left, getHeight() - mIndicatorHeight,
@@ -675,15 +734,19 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
                 mIndicatorDrawable.setColor(mIndicatorColor)
 
                 if (mIndicatorGravity == Gravity.BOTTOM) {
-                    mIndicatorDrawable.setBounds(paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
-                            height - mIndicatorHeight.toInt() - indicatorMarginBottom.toInt(),
-                            paddingLeft + mIndicatorRect.right - indicatorMarginRight.toInt(),
-                            height - indicatorMarginBottom.toInt())
+                    mIndicatorDrawable.setBounds(
+                        paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
+                        height - mIndicatorHeight.toInt() - indicatorMarginBottom.toInt(),
+                        paddingLeft + mIndicatorRect.right - indicatorMarginRight.toInt(),
+                        height - indicatorMarginBottom.toInt()
+                    )
                 } else {
-                    mIndicatorDrawable.setBounds(paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
-                            indicatorMarginTop.toInt(),
-                            paddingLeft + mIndicatorRect.right - indicatorMarginRight.toInt(),
-                            mIndicatorHeight.toInt() + indicatorMarginTop.toInt())
+                    mIndicatorDrawable.setBounds(
+                        paddingLeft + indicatorMarginLeft.toInt() + mIndicatorRect.left,
+                        indicatorMarginTop.toInt(),
+                        paddingLeft + mIndicatorRect.right - indicatorMarginRight.toInt(),
+                        mIndicatorHeight.toInt() + indicatorMarginTop.toInt()
+                    )
                 }
                 mIndicatorDrawable.cornerRadius = mIndicatorCornerRadius
                 mIndicatorDrawable.draw(canvas)
@@ -701,8 +764,10 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         invalidate()
     }
 
-    fun setIndicatorMargin(indicatorMarginLeft: Float, indicatorMarginTop: Float,
-                           indicatorMarginRight: Float, indicatorMarginBottom: Float) {
+    fun setIndicatorMargin(
+        indicatorMarginLeft: Float, indicatorMarginTop: Float,
+        indicatorMarginRight: Float, indicatorMarginBottom: Float
+    ) {
         this.indicatorMarginLeft = dp2px(indicatorMarginLeft).toFloat()
         this.indicatorMarginTop = dp2px(indicatorMarginTop).toFloat()
         this.indicatorMarginRight = dp2px(indicatorMarginRight).toFloat()
@@ -796,7 +861,8 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
             val textWidth = mTextPaint.measureText(tv_tab_title.text.toString())
             val textHeight = mTextPaint.descent() - mTextPaint.ascent()
             val lp = tipView.layoutParams as MarginLayoutParams
-            lp.leftMargin = if (mTabWidth >= 0) (mTabWidth / 2 + textWidth / 2 + dp2px(leftPadding).toFloat()).toInt() else (mTabPadding + textWidth + dp2px(leftPadding).toFloat()).toInt()
+            lp.leftMargin =
+                if (mTabWidth >= 0) (mTabWidth / 2 + textWidth / 2 + dp2px(leftPadding).toFloat()).toInt() else (mTabPadding + textWidth + dp2px(leftPadding).toFloat()).toInt()
             lp.topMargin = if (mHeight > 0) (mHeight - textHeight).toInt() / 2 - dp2px(bottomPadding) else 0
             tipView.layoutParams = lp
         }
@@ -816,14 +882,14 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         this.mListener = listener
     }
 
-    internal inner class InnerPagerAdapter: FragmentStateAdapter
-    {
+    internal inner class InnerPagerAdapter : FragmentStateAdapter {
         private var fragments = ArrayList<Fragment>()
 
-        constructor(fragmentActivity: FragmentActivity, fragments: ArrayList<Fragment>) : super(fragmentActivity){
+        constructor(fragmentActivity: FragmentActivity, fragments: ArrayList<Fragment>) : super(fragmentActivity) {
             this.fragments = fragments
         }
-        constructor(fragment: Fragment,fragments: ArrayList<Fragment>) : super(fragment){
+
+        constructor(fragment: Fragment, fragments: ArrayList<Fragment>) : super(fragment) {
             this.fragments = fragments
         }
 
@@ -836,7 +902,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
         }
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
         bundle.putParcelable("instanceState", super.onSaveInstanceState())
         bundle.putInt("mCurrentTab", mCurrentTab)

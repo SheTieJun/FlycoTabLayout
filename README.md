@@ -10,6 +10,7 @@ fork from  https://github.com/H07000223/FlycoTabLayout
 > 2. [Add]  tl_textSelectSize 添加选中文字大小
 > 3. [Fix]  第一次的是默认选中第一个的时候没有加粗
 > 4. [Add]  SlidingTabLayoutV2 支持 自定义背景tl_indicator_drawable
+> 5. [Add]  SlidingTabLayoutV3 支持tab展示图片或者文字
 
 ## Gradle
 

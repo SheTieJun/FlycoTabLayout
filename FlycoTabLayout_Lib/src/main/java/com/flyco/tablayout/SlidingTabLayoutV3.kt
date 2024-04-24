@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -57,6 +58,8 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
     private var mTabPadding: Float = 0.toFloat()
     private var mTabSpaceEqual: Boolean = false
     private var mTabWidth: Float = 0.toFloat()
+    private var mIconWidth: Float = 0.toFloat()
+    private var mIconHeight: Float = 0.toFloat()
 
     private var onPageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
@@ -338,7 +341,8 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
 
 
         mSelectImageScale = ta.getFloat(R.styleable.SlidingTabLayoutV3_tl_imgSelect_scale, 1.0f)
-
+        mIconWidth = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_iconWidth, dp2px(0f).toFloat())
+        mIconHeight = ta.getDimension(R.styleable.SlidingTabLayoutV3_tl_iconHeight, dp2px(0f).toFloat())
         ta.recycle()
     }
 
@@ -486,7 +490,7 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
             if (type == TabTitleType.TEXT) {
                 tvTabTitle.setTextColor(if (i == mCurrentTab) mTextSelectColor else mTextUnselectColor)
                 tvTabTitle.setTextSize(TypedValue.COMPLEX_UNIT_PX, mTextSize)
-                tvTabTitle.setPadding(mTabPadding.toInt(), 0, mTabPadding.toInt(), 0)
+
                 if (mTextAllCaps) {
                     tvTabTitle.text = tvTabTitle.text.toString().uppercase()
                 }
@@ -508,7 +512,16 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
                         )
                     }
                 }
+            } else {
+                val lp = (imageTabTitle.layoutParams as? RelativeLayout.LayoutParams) ?: RelativeLayout.LayoutParams(
+                    RelativeLayout.LayoutParams.WRAP_CONTENT,
+                    RelativeLayout.LayoutParams.MATCH_PARENT
+                ).also {  it.addRule(RelativeLayout.CENTER_IN_PARENT) }
+                lp.width = if (mIconWidth <= 0) RelativeLayout.LayoutParams.WRAP_CONTENT else (mIconWidth.toInt()+mTabPadding.toInt()*2)
+                lp.height = if (mIconHeight <= 0) LinearLayout.LayoutParams.MATCH_PARENT else mIconHeight.toInt()
+                imageTabTitle.layoutParams = lp
             }
+            currentView.setPadding(mTabPadding.toInt(), 0, mTabPadding.toInt(), 0)
             if (i == mCurrentTab) {
                 val fl = if (type == TabTitleType.TEXT) mTextSelectSize / mTextSize else mSelectImageScale
                 currentView.animate().scaleX(fl).scaleY(fl).setDuration(180).start()

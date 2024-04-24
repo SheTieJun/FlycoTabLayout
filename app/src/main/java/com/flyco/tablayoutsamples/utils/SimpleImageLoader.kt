@@ -17,7 +17,7 @@ class SimpleImageLoader: IImageLoader {
         Log.i("SimpleImageLoader", "imageView:${imageView},loadImage: $url")
         Glide.with(imageView.context)
             .load(url)
-            .centerInside()
+//            .centerInside()
             .into(imageView)
     }
 }

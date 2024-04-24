@@ -19,10 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
         android:gravity="center"
-        android:singleLine="true"/>
+        />
 
     <com.flyco.tablayout.widget.MsgView
         android:id="@+id/rtv_msg_tip"

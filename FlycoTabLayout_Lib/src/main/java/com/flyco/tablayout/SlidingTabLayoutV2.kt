@@ -218,7 +218,7 @@ class SlidingTabLayoutV2 @JvmOverloads constructor(private val mContext: Context
     var textSelectSize: Float
         get() = mTextSelectSize
         set(textselectSize) {
-            this.mTextSelectSize = textselectSize
+            this.mTextSelectSize = sp2px(textselectSize).toFloat()
             updateTabStyles()
         }
 

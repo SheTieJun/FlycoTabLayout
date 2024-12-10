@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Looper;
+import android.util.Log;
+import android.util.Printer;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -20,6 +24,12 @@ public class SimpleHomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Looper.getMainLooper().setMessageLogging(new Printer() {
+            @Override
+            public void println(String x) {
+                Log.i("MessageLog", x);
+            }
+        });
         ListView lv = new ListView(mContext);
         lv.setCacheColorHint(Color.TRANSPARENT);
         lv.setFadingEdgeLength(0);

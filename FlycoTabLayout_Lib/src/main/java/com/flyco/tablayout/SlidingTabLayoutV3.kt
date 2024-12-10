@@ -360,11 +360,6 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
         if (titles.isEmpty()) {
             throw IllegalStateException("Titles can not be EMPTY !")
         }
-
-        if (titles.size != vp.adapter!!.itemCount) {
-            throw IllegalStateException("Titles length must be the same as the page count !")
-        }
-
         this.mViewPager = vp
         mTitles = titles
         this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
@@ -383,7 +378,7 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
         }
         mTitles = titles
         this.mViewPager = vp
-        this.mViewPager!!.adapter = InnerPagerAdapter(fa, fragments)
+        this.mViewPager!!.adapter = InnerViewPager2Adapter(fa, fragments)
 
         this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
         this.mViewPager!!.registerOnPageChangeCallback(onPageChangeCallback)
@@ -401,7 +396,7 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
         }
         mTitles = titles
         this.mViewPager = vp
-        this.mViewPager!!.adapter = InnerPagerAdapter(fa, fragments)
+        this.mViewPager!!.adapter = InnerViewPager2Adapter(fa, fragments)
 
         this.mViewPager!!.unregisterOnPageChangeCallback(onPageChangeCallback)
         this.mViewPager!!.registerOnPageChangeCallback(onPageChangeCallback)
@@ -895,25 +890,6 @@ class SlidingTabLayoutV3 @JvmOverloads constructor(private val mContext: Context
         this.mListener = listener
     }
 
-    internal inner class InnerPagerAdapter : FragmentStateAdapter {
-        private var fragments = ArrayList<Fragment>()
-
-        constructor(fragmentActivity: FragmentActivity, fragments: ArrayList<Fragment>) : super(fragmentActivity) {
-            this.fragments = fragments
-        }
-
-        constructor(fragment: Fragment, fragments: ArrayList<Fragment>) : super(fragment) {
-            this.fragments = fragments
-        }
-
-        override fun getItemCount(): Int {
-            return fragments.size
-        }
-
-        override fun createFragment(position: Int): Fragment {
-            return fragments[position]
-        }
-    }
 
     override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()

@@ -6,15 +6,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.flyco.tablayout.InnerViewPager2Adapter;
 import com.flyco.tablayout.SlidingTabConfig;
 import com.flyco.tablayout.SlidingTabLayoutV3;
 import com.flyco.tablayout.bean.TabTitleType;
@@ -31,18 +27,16 @@ import static com.flyco.tablayout.bean.TabTitleType.TEXT;
 
 public class SlidingTab3Activity extends AppCompatActivity implements OnTabSelectListener {
     private Context mContext = this;
-    private ArrayList<Fragment> mFragments2 = new ArrayList<>();
 
     private final ArrayList<TabV3Title> list = new ArrayList<>();
 
-    private SimpleImageLoader mSimpleImageLoader = new SimpleImageLoader();
+    private final SimpleImageLoader mSimpleImageLoader = new SimpleImageLoader();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sliding_tab3);
-
-
+        View decorView = getWindow().getDecorView();
         list.add(new TabV3Title(TEXT, "热门"));
         list.add(new TabV3Title(TEXT, "iOS"));
         list.add(new TabV3Title(TEXT, "Android"));
@@ -52,16 +46,15 @@ public class SlidingTab3Activity extends AppCompatActivity implements OnTabSelec
         list.add(new TabV3Title(TabTitleType.IMAGE, R.drawable.icon_remengx));
         list.add(new TabV3Title(TEXT, "设计"));
         list.add(new TabV3Title(TEXT, "工具资源"));
+        ViewPager2 vp2 = ViewFindUtils.find(decorView, R.id.vp_2);
+        loadViewPager(decorView, vp2);
+    }
+
+    private void loadViewPager(View decorView, ViewPager2 vp2) {
+        ArrayList<Fragment> mFragments2 = new ArrayList<>();
         for (TabV3Title title : list) {
             mFragments2.add(SimpleCardFragment.getInstance(title.getContent().toString()));
         }
-
-
-        View decorView = getWindow().getDecorView();
-        ViewPager2 vp2 = ViewFindUtils.find(decorView, R.id.vp_2);
-        MyPagerAdapter2 mAdapter2 = new MyPagerAdapter2(this);
-        vp2.setAdapter(mAdapter2);
-
         /** 默认 */
         SlidingTabLayoutV3 tabLayout_1 = ViewFindUtils.find(decorView, R.id.tl_1);
         /**自定义部分属性*/
@@ -88,6 +81,9 @@ public class SlidingTab3Activity extends AppCompatActivity implements OnTabSelec
         SlidingTabLayoutV3 tabLayout_12 = ViewFindUtils.find(decorView, R.id.tl_12);
 
         SlidingTabConfig.INSTANCE.setImageLoader(mSimpleImageLoader);
+
+        MySimplePagerAdapter mAdapter2 = new MySimplePagerAdapter(this,mFragments2);
+        vp2.setAdapter(mAdapter2);
 
         tabLayout_1.setViewPager(vp2, list);
         tabLayout_2.setViewPager(vp2, list);
@@ -117,6 +113,7 @@ public class SlidingTab3Activity extends AppCompatActivity implements OnTabSelec
 
         tabLayout_2.showMsg(5, 5);
         tabLayout_2.setMsgMargin(5, 0, 10);
+
     }
 
     @Override
@@ -130,30 +127,5 @@ public class SlidingTab3Activity extends AppCompatActivity implements OnTabSelec
     }
 
 
-    private class MyPagerAdapter2 extends FragmentStateAdapter {
 
-        public MyPagerAdapter2(@NonNull FragmentActivity fragmentActivity) {
-            super(fragmentActivity);
-        }
-
-        public MyPagerAdapter2(@NonNull Fragment fragment) {
-            super(fragment);
-        }
-
-        public MyPagerAdapter2(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
-            super(fragmentManager, lifecycle);
-        }
-
-
-        @NonNull
-        @Override
-        public Fragment createFragment(int position) {
-            return mFragments2.get(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mFragments2.size();
-        }
-    }
 }

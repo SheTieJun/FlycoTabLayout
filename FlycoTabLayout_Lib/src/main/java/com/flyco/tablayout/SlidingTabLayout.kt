@@ -346,7 +346,7 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
         }
 
         this.mViewPager = vp
-        this.mViewPager!!.adapter = InnerPagerAdapter(fa.supportFragmentManager, fragments, titles)
+        this.mViewPager!!.adapter = InnerViewPagerAdapter(fa.supportFragmentManager, fragments, titles)
 
         this.mViewPager!!.removeOnPageChangeListener(this)
         this.mViewPager!!.addOnPageChangeListener(this)
@@ -786,34 +786,6 @@ class SlidingTabLayout @JvmOverloads constructor(private val mContext: Context, 
         this.mListener = listener
     }
 
-    internal inner class InnerPagerAdapter(fm: FragmentManager, fragments: ArrayList<Fragment>, private val titles: Array<String>) : FragmentPagerAdapter(fm) {
-        private var fragments = ArrayList<Fragment>()
-
-        init {
-            this.fragments = fragments
-        }
-
-        override fun getCount(): Int {
-            return fragments.size
-        }
-
-        override fun getPageTitle(position: Int): CharSequence? {
-            return titles[position]
-        }
-
-        override fun getItem(position: Int): Fragment {
-            return fragments[position]
-        }
-
-        override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
-            // 覆写destroyItem并且空实现,这样每个Fragment中的视图就不会被销毁
-            // super.destroyItem(container, position, object);
-        }
-
-        override fun getItemPosition(`object`: Any): Int {
-            return PagerAdapter.POSITION_NONE
-        }
-    }
 
     override fun onSaveInstanceState(): Parcelable? {
         val bundle = Bundle()

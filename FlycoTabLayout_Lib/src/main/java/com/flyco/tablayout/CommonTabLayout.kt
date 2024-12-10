@@ -25,6 +25,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
 import com.flyco.tablayout.listener.CustomTabEntity
 import com.flyco.tablayout.listener.OnTabSelectListener
@@ -751,7 +752,7 @@ class CommonTabLayout @JvmOverloads constructor(private val mContext: Context, a
             position = tabCount - 1
         }
         val tabView = mTabsContainer.getChildAt(position)
-        val tipView = tabView.findViewById<View>(R.id.rtv_msg_tip) as MsgView
+        val tipView = tabView.findViewById<View>(R.id.rtv_msg_tip) as? MsgView
         if (tipView != null) {
             val tv_tab_title = tabView.findViewById<View>(R.id.tv_tab_title) as TextView
             mTextPaint.textSize = mTextsize
@@ -763,7 +764,7 @@ class CommonTabLayout @JvmOverloads constructor(private val mContext: Context, a
             var margin = 0f
             if (mIconVisible) {
                 if (iconH <= 0) {
-                    iconH = mContext.resources.getDrawable(mTabEntitys[position].tabSelectedIcon).intrinsicHeight.toFloat()
+                    iconH = ContextCompat.getDrawable(mContext,mTabEntitys[position].tabSelectedIcon)?.intrinsicHeight?.toFloat()?:0f
                 }
                 margin = mIconMargin
             }

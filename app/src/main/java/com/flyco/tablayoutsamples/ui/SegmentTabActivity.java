@@ -21,7 +21,7 @@ public class SegmentTabActivity extends AppCompatActivity {
     private ArrayList<Fragment> mFragments = new ArrayList<>();
     private ArrayList<Fragment> mFragments2 = new ArrayList<>();
 
-    private String[] mTitles = {"首页", "消息"};
+    private String[] mTitles = {"自由朗读", "匹配文稿"};
     private String[] mTitles_2 = {"首页", "消息", "联系人"};
     private String[] mTitles_3 = {"首页", "消息", "联系人", "更多"};
     private View mDecorView;
